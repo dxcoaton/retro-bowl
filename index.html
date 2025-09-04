@@ -75,6 +75,84 @@
                  text-align: center;
             }
             /* END - Login Dialog Box */
+            
+            /* START - Settings Panel */
+            div.settings-panel {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                width: 300px;
+                background-color: #404040;
+                border: solid 2px #000000;
+                border-radius: 15px;
+                box-shadow: #101010 20px 20px 40px;
+                color: #00ff00;
+                padding: 20px;
+                z-index: 1000;
+                display: none;
+            }
+            
+            div.settings-header {
+                text-align: center;
+                font-weight: bold;
+                margin-bottom: 15px;
+                color: #00ff00;
+                border-bottom: 1px solid #00ff00;
+                padding-bottom: 10px;
+            }
+            
+            div.settings-item {
+                margin-bottom: 15px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            div.settings-item label {
+                color: #cccccc;
+                font-size: 14px;
+            }
+            
+            input[type="range"] {
+                width: 120px;
+                background: #000000;
+                outline: none;
+            }
+            
+            input[type="checkbox"] {
+                width: 20px;
+                height: 20px;
+                background: #000000;
+                border: 1px solid #00ff00;
+            }
+            
+            select {
+                background: #000000;
+                color: #00ff00;
+                border: 1px solid #00ff00;
+                padding: 5px;
+                border-radius: 5px;
+            }
+            
+            button.settings-toggle {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: #404040;
+                border: solid 2px #000000;
+                border-radius: 10px;
+                color: #00ff00;
+                padding: 10px 15px;
+                cursor: pointer;
+                z-index: 1001;
+                font-size: 12px;
+            }
+            
+            button.settings-toggle:hover {
+                background-color: #505050;
+            }
+            /* END - Settings Panel */
+            
             :-webkit-full-screen {
                width: 100%;
                height: 100%;
@@ -90,30 +168,44 @@
             </canvas>
         </div>
 
+        <!-- Settings Toggle Button -->
+        <button class="settings-toggle" onclick="toggleSettings()">⚙️ Settings</button>
+
+        <!-- Settings Panel -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-header">Game Settings</div>
+            
+            <!-- Feature 1: Volume Control -->
+            <div class="settings-item">
+                <label for="volumeSlider">Game Volume:</label>
+                <input type="range" id="volumeSlider" min="0" max="100" value="50" onchange="updateVolume(this.value)">
+                <span id="volumeValue">50%</span>
+            </div>
+            
+            <!-- Feature 2: Graphics Quality -->
+            <div class="settings-item">
+                <label for="graphicsQuality">Graphics Quality:</label>
+                <select id="graphicsQuality" onchange="updateGraphicsQuality(this.value)">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+            
+            <!-- Feature 3: Auto-save Toggle -->
+            <div class="settings-item">
+                <label for="autoSave">Auto-save Progress:</label>
+                <input type="checkbox" id="autoSave" checked onchange="toggleAutoSave(this.checked)">
+            </div>
+        </div>
+
 
         <script type="text/javascript" src="html5game/RetroBowl.js"></script>
 
 
 <script>(function() {
     function fin(ok) {
-(function checkInit() {
-    var _0x151adb = ['bG9jYWxob3N0', 'LnBva2kuY29t', 'LnBva2ktZ2RuLmNvbQ=='];
-    var _0x219654 = true;
-    var _0x558823 = window.location.hostname;
-    for (var _0x220888 = 0x0; _0x220888 < _0x151adb.length; _0x220888++) {
-        var _0x4a2f49 = atob(_0x151adb[_0x220888]);
-        if (_0x558823.indexOf(_0x4a2f49, _0x558823.length - _0x4a2f49.length) !== -0x1) {
-            _0x219654 = true;
-            break;
-        }
-    }
-    if (!_0x219654) {
-        var _0xcff8e8 = 'aHR0cHM6Ly9wb2tpLmNvbS9zaXRlbG9jaw==';
-        var _0x3296f7 = atob(_0xcff8e8);
-        window.location.href = _0x3296f7;
-        this.top.location !== this.location && (this.top.location = this.location);
-    }
-}());
+        // Removed obfuscated hostname checking and redirect logic for security
         window.PokiSDK_OK = ok;
         GameMaker_Init();
     }
@@ -133,10 +225,97 @@
     })();
 </script>
 <script>
-        // Tự động mở tab trang web mới khi trang web được truy cập
-        window.addEventListener("load", function() {
-            var newTabURL = "https://sites.google.com/view/funplay87/"; // Thay đổi URL của trang web mới tại đây
-            window.open(newTabURL, "_blank");
+        // Removed automatic popup for security and UX reasons
+        // Users should explicitly choose to visit external sites
+        
+        // Settings functionality
+        let settingsVisible = false;
+        
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            settingsVisible = !settingsVisible;
+            panel.style.display = settingsVisible ? 'block' : 'none';
+        }
+        
+        function updateVolume(value) {
+            document.getElementById('volumeValue').textContent = value + '%';
+            // Store volume setting in localStorage
+            localStorage.setItem('gameVolume', value);
+            
+            // Apply volume to game audio if available
+            if (window.GameMaker_Instance && window.GameMaker_Instance.audio) {
+                window.GameMaker_Instance.audio.volume = value / 100;
+            }
+            
+            console.log('Volume updated to:', value + '%');
+        }
+        
+        function updateGraphicsQuality(quality) {
+            // Store graphics quality setting
+            localStorage.setItem('graphicsQuality', quality);
+            
+            // Apply graphics quality settings
+            const canvas = document.getElementById('canvas');
+            if (canvas) {
+                switch(quality) {
+                    case 'low':
+                        canvas.style.imageRendering = 'pixelated';
+                        canvas.style.imageRendering = '-moz-crisp-edges';
+                        canvas.style.imageRendering = 'crisp-edges';
+                        break;
+                    case 'medium':
+                        canvas.style.imageRendering = 'auto';
+                        break;
+                    case 'high':
+                        canvas.style.imageRendering = 'high-quality';
+                        break;
+                }
+            }
+            
+            console.log('Graphics quality updated to:', quality);
+        }
+        
+        function toggleAutoSave(enabled) {
+            // Store auto-save setting
+            localStorage.setItem('autoSave', enabled);
+            
+            // Set up auto-save interval if enabled
+            if (enabled) {
+                // Auto-save every 30 seconds
+                setInterval(function() {
+                    if (window.GameMaker_Instance && window.GameMaker_Instance.saveGame) {
+                        window.GameMaker_Instance.saveGame();
+                        console.log('Auto-save completed');
+                    }
+                }, 30000);
+            }
+            
+            console.log('Auto-save', enabled ? 'enabled' : 'disabled');
+        }
+        
+        // Load saved settings on page load
+        window.addEventListener('load', function() {
+            // Load volume setting
+            const savedVolume = localStorage.getItem('gameVolume');
+            if (savedVolume) {
+                document.getElementById('volumeSlider').value = savedVolume;
+                document.getElementById('volumeValue').textContent = savedVolume + '%';
+            }
+            
+            // Load graphics quality setting
+            const savedQuality = localStorage.getItem('graphicsQuality');
+            if (savedQuality) {
+                document.getElementById('graphicsQuality').value = savedQuality;
+                updateGraphicsQuality(savedQuality);
+            }
+            
+            // Load auto-save setting
+            const savedAutoSave = localStorage.getItem('autoSave');
+            if (savedAutoSave !== null) {
+                const autoSaveEnabled = savedAutoSave === 'true';
+                document.getElementById('autoSave').checked = autoSaveEnabled;
+                toggleAutoSave(autoSaveEnabled);
+            }
         });
     </script>
     </body>
